@@ -1,7 +1,8 @@
 
 import React, { useState } from 'react';
+import ReactMarkdown from 'react-markdown';
 import { Cycle, Goal, Tactic } from '../types';
-import { Plus, Trash2, Sparkles, Target, BarChart3 } from 'lucide-react';
+import { Plus, Trash2, Sparkles, Target, BarChart3, Edit3, Eye } from 'lucide-react';
 import { suggestTactics } from '../services/geminiService';
 
 interface Props {
@@ -11,6 +12,7 @@ interface Props {
 
 const Planning: React.FC<Props> = ({ cycle, updateCycle }) => {
   const [loadingTactics, setLoadingTactics] = useState<string | null>(null);
+  const [visionMode, setVisionMode] = useState<'edit' | 'preview'>('edit');
 
   const addGoal = () => {
     if (cycle.goals.length >= 3) return;
@@ -55,15 +57,28 @@ const Planning: React.FC<Props> = ({ cycle, updateCycle }) => {
   return (
     <div className="space-y-12 animate-in fade-in duration-700">
       <section className="bg-white p-10 rounded-[2.5rem] shadow-sm border border-slate-100">
-        <h3 className="text-2xl font-black text-slate-900 mb-6 flex items-center gap-3">
-          <Target className="text-blue-600" size={32} />
-          Core Vision
+        <h3 className="text-2xl font-black text-slate-900 mb-6 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <Target className="text-blue-600" size={32} />
+            Core Vision
+          </div>
+          <div className="flex bg-slate-100 rounded-lg p-1">
+             <button onClick={() => setVisionMode('edit')} className={`p-2 rounded-md transition-all ${visionMode === 'edit' ? 'bg-white shadow-sm text-slate-900' : 'text-slate-400'}`}><Edit3 size={16}/></button>
+             <button onClick={() => setVisionMode('preview')} className={`p-2 rounded-md transition-all ${visionMode === 'preview' ? 'bg-white shadow-sm text-slate-900' : 'text-slate-400'}`}><Eye size={16}/></button>
+          </div>
         </h3>
-        <textarea
-          value={cycle.vision}
-          onChange={(e) => updateCycle(p => p ? {...p, vision: e.target.value} : null)}
-          className="w-full h-40 p-8 bg-slate-50 border-2 border-slate-100 rounded-3xl focus:border-blue-500 focus:outline-none text-slate-700 text-lg italic transition-all"
-        />
+        {visionMode === 'edit' ? (
+          <textarea
+            value={cycle.vision}
+            onChange={(e) => updateCycle(p => p ? {...p, vision: e.target.value} : null)}
+            className="w-full h-40 p-8 bg-slate-50 border-2 border-slate-100 rounded-3xl focus:border-blue-500 focus:outline-none text-slate-700 text-lg italic transition-all"
+            placeholder="Write your vision here..."
+          />
+        ) : (
+          <div className="w-full min-h-40 p-8 bg-slate-50 border-2 border-slate-100 rounded-3xl prose prose-slate max-w-none text-slate-700">
+             <ReactMarkdown>{cycle.vision || 'No vision set.'}</ReactMarkdown>
+          </div>
+        )}
       </section>
 
       <div className="space-y-8">

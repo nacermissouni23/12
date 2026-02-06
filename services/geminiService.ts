@@ -54,6 +54,17 @@ export const generateVisionPrompts = async () => {
   return text ? JSON.parse(text.trim()) : [];
 };
 
+export const refineVision = async (vision: string) => {
+  const ai = getClient();
+  const response = await ai.models.generateContent({
+    model: 'gemini-3-flash-preview',
+    contents: `Refine this vision statement into a compelling, clear, and emotional 1-page vision. 
+    Vision draft: "${vision}"
+    Make it punchy, present-tense, and highly motivating. Use markdown if necessary.`,
+  });
+  return response.text || '';
+};
+
 export const suggestTactics = async (goal: string): Promise<Partial<Tactic>[]> => {
   const ai = getClient();
   const response = await ai.models.generateContent({

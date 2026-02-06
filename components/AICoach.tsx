@@ -1,31 +1,32 @@
 
 import React, { useState, useEffect } from 'react';
+import ReactMarkdown from 'react-markdown';
 import { Cycle } from '../types';
 import { getAIFeedback } from '../services/geminiService';
 import { Sparkles, Send, BrainCircuit } from 'lucide-react';
 
 interface Props {
   cycle: Cycle;
+  updateCycle: (updater: (prev: Cycle | null) => Cycle | null) => void;
 }
 
-const AICoach: React.FC<Props> = ({ cycle }) => {
-  const [feedback, setFeedback] = useState<string>('');
+const AICoach: React.FC<Props> = ({ cycle, updateCycle }) => {
   const [loading, setLoading] = useState(false);
 
   const requestFeedback = async () => {
     setLoading(true);
     try {
       const result = await getAIFeedback(cycle.vision, cycle.goals);
-      setFeedback(result || 'No feedback received.');
+      updateCycle(prev => prev ? { ...prev, aiFeedback: result || 'No feedback received.' } : null);
     } catch (e) {
-      setFeedback('Failed to connect to AI Coach. Please check your API key.');
+      updateCycle(prev => prev ? { ...prev, aiFeedback: 'Failed to connect to AI Coach. Please check your API key.' } : null);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    if (cycle.goals.length > 0 && !feedback) {
+    if (cycle.goals.length > 0 && !cycle.aiFeedback) {
       requestFeedback();
     }
   }, []);
@@ -69,9 +70,9 @@ const AICoach: React.FC<Props> = ({ cycle }) => {
                 <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
                 <p className="text-slate-400 font-medium">Evaluating your 12-week framework...</p>
               </div>
-            ) : feedback ? (
-              <div className="whitespace-pre-wrap text-slate-700 leading-relaxed font-medium">
-                {feedback}
+            ) : cycle.aiFeedback ? (
+              <div className="prose prose-slate max-w-none text-slate-700 leading-relaxed font-medium">
+                <ReactMarkdown>{cycle.aiFeedback}</ReactMarkdown>
               </div>
             ) : (
               <div className="text-center pt-20 text-slate-400">

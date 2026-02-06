@@ -29,11 +29,6 @@ export interface WeeklyExecution {
   score: number;
 }
 
-export interface AccountabilityPartner {
-  id: string;
-  name: string;
-}
-
 export interface Cycle {
   id: string;
   startDate: string;
@@ -42,4 +37,5 @@ export interface Cycle {
   executions: WeeklyExecution[];
   onboardingCompleted: boolean;
   streak: number;
+  aiFeedback?: string;
 }
