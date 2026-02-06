@@ -3,7 +3,7 @@ import { GoogleGenAI, Type } from "@google/genai";
 import { Goal, Tactic, Cycle } from "../types";
 
 // Helper to initialize the GenAI client using the environment's API key.
-const getClient = () => new GoogleGenAI({ apiKey: process.env.API_KEY });
+const getClient = () => new GoogleGenAI({ apiKey: process.env.VITE_GEMINI_API_KEY || process.env.API_KEY });
 
 export const getAIFeedback = async (vision: string, currentGoals: Goal[]) => {
   const ai = getClient();
