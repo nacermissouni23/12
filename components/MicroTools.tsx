@@ -22,8 +22,9 @@ const MicroTools: React.FC<Props> = ({ cycle, updateCycle }) => {
       const refined = await refineVision(cycle.vision);
       updateCycle(prev => prev ? { ...prev, vision: refined } : null);
       alert("Vision refined and updated in your plan!");
-    } catch (e) {
-      alert("Failed to refine vision. Check API key.");
+    } catch (e: any) {
+      console.error('Refine vision error:', e);
+      alert(e?.message?.includes('leaked') ? 'API key was revoked. Generate a new one at aistudio.google.com/apikey' : `AI error: ${e?.message || 'Check API key.'}`);
     } finally {
       setLoading(null);
     }

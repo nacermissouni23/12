@@ -18,8 +18,11 @@ const AICoach: React.FC<Props> = ({ cycle, updateCycle }) => {
     try {
       const result = await getAIFeedback(cycle.vision, cycle.goals);
       updateCycle(prev => prev ? { ...prev, aiFeedback: result || 'No feedback received.' } : null);
-    } catch (e) {
-      updateCycle(prev => prev ? { ...prev, aiFeedback: 'Failed to connect to AI Coach. Please check your API key.' } : null);
+    } catch (e: any) {
+      console.error('AI Coach error:', e);
+      const msg = e?.message?.includes('leaked') ? 'API key was revoked by Google. Generate a new key at aistudio.google.com/apikey'
+        : e?.message || 'Failed to connect to AI Coach. Please check your API key.';
+      updateCycle(prev => prev ? { ...prev, aiFeedback: msg } : null);
     } finally {
       setLoading(false);
     }

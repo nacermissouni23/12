@@ -2,14 +2,22 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import { Goal, Tactic, Cycle } from "../types";
 
+const MODEL = 'gemini-2.0-flash';
+
 // Helper to initialize the GenAI client using the environment's API key.
-const getClient = () => new GoogleGenAI({ apiKey: process.env.VITE_GEMINI_API_KEY || process.env.API_KEY });
+// In Vite, variables prefixed with VITE_ are exposed on import.meta.env
+const getClient = () => {
+  const apiKey = import.meta.env.VITE_GEMINI_API_KEY || process.env.VITE_GEMINI_API_KEY || process.env.API_KEY || ''; 
+  if (!apiKey) {
+      console.error("GEMINI API Key is missing. Check .env for VITE_GEMINI_API_KEY");
+  }
+  return new GoogleGenAI({ apiKey });
+};
 
 export const getAIFeedback = async (vision: string, currentGoals: Goal[]) => {
   const ai = getClient();
-  // Using gemini-3-flash-preview for general text tasks as recommended.
   const response = await ai.models.generateContent({
-    model: 'gemini-3-flash-preview',
+    model: MODEL,
     contents: `
       Analyze this 12 Week Year plan as a performance coach.
       Vision: ${vision}
@@ -28,7 +36,7 @@ export const getCorrectiveAction = async (cycle: Cycle, weekIndex: number) => {
   const week = cycle.executions[weekIndex];
   const ai = getClient();
   const response = await ai.models.generateContent({
-    model: 'gemini-3-flash-preview',
+    model: MODEL,
     contents: `The user's execution score was ${week.score}% in week ${weekIndex + 1}. 
     Based on these goals: ${JSON.stringify(cycle.goals)}, 
     suggest a "Corrective Recovery Plan" for next week to get back to 85%+. 
@@ -40,7 +48,7 @@ export const getCorrectiveAction = async (cycle: Cycle, weekIndex: number) => {
 export const generateVisionPrompts = async () => {
   const ai = getClient();
   const response = await ai.models.generateContent({
-    model: 'gemini-3-flash-preview',
+    model: MODEL,
     contents: "Generate 5 thought-provoking questions to help someone define a '12 Week Year' compelling vision. Make them challenging and future-focused.",
     config: {
       responseMimeType: "application/json",
@@ -57,7 +65,7 @@ export const generateVisionPrompts = async () => {
 export const refineVision = async (vision: string) => {
   const ai = getClient();
   const response = await ai.models.generateContent({
-    model: 'gemini-3-flash-preview',
+    model: MODEL,
     contents: `Refine this vision statement into a compelling, clear, and emotional 1-page vision. 
     Vision draft: "${vision}"
     Make it punchy, present-tense, and highly motivating. Use markdown if necessary.`,
@@ -68,7 +76,7 @@ export const refineVision = async (vision: string) => {
 export const suggestTactics = async (goal: string): Promise<Partial<Tactic>[]> => {
   const ai = getClient();
   const response = await ai.models.generateContent({
-    model: "gemini-3-flash-preview",
+    model: MODEL,
     contents: `Suggest 3-5 high-impact tactics for a 12-week goal: "${goal}". 
     Tactics must be daily or weekly repeatable actions. Lead indicators only.`,
     config: {

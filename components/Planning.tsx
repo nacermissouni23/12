@@ -50,7 +50,10 @@ const Planning: React.FC<Props> = ({ cycle, updateCycle }) => {
           target: s.target || 1
         }))]
       });
-    } catch (e) {}
+    } catch (e: any) {
+      console.error('Suggest tactics error:', e);
+      alert(e?.message?.includes('leaked') ? 'API key was revoked. Generate a new one at aistudio.google.com/apikey' : `AI error: ${e?.message || 'Check API key.'}`);
+    }
     setLoadingTactics(null);
   };
 
