@@ -10,6 +10,7 @@ const getClient = () => {
   const apiKey = import.meta.env.VITE_GEMINI_API_KEY || process.env.VITE_GEMINI_API_KEY || process.env.API_KEY || ''; 
   if (!apiKey) {
       console.error("GEMINI API Key is missing. Check .env for VITE_GEMINI_API_KEY");
+      throw new Error("API Key not found. Please check your settings.");
   }
   return new GoogleGenAI({ apiKey });
 };
