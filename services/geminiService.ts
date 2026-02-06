@@ -1,0 +1,82 @@
+
+import { GoogleGenAI, Type } from "@google/genai";
+import { Goal, Tactic, Cycle } from "../types";
+
+// Helper to initialize the GenAI client using the environment's API key.
+const getClient = () => new GoogleGenAI({ apiKey: process.env.API_KEY });
+
+export const getAIFeedback = async (vision: string, currentGoals: Goal[]) => {
+  const ai = getClient();
+  // Using gemini-3-flash-preview for general text tasks as recommended.
+  const response = await ai.models.generateContent({
+    model: 'gemini-3-flash-preview',
+    contents: `
+      Analyze this 12 Week Year plan as a performance coach.
+      Vision: ${vision}
+      Goals: ${JSON.stringify(currentGoals)}
+      
+      Give me a concise critique and 3 "Power Actions" to ensure 85% execution.
+    `,
+    config: { temperature: 0.7 }
+  });
+  
+  // Accessing text as a property of GenerateContentResponse.
+  return response.text || '';
+};
+
+export const getCorrectiveAction = async (cycle: Cycle, weekIndex: number) => {
+  const week = cycle.executions[weekIndex];
+  const ai = getClient();
+  const response = await ai.models.generateContent({
+    model: 'gemini-3-flash-preview',
+    contents: `The user's execution score was ${week.score}% in week ${weekIndex + 1}. 
+    Based on these goals: ${JSON.stringify(cycle.goals)}, 
+    suggest a "Corrective Recovery Plan" for next week to get back to 85%+. 
+    Focus on removing obstacles and simplifying tactics.`,
+  });
+  return response.text || '';
+};
+
+export const generateVisionPrompts = async () => {
+  const ai = getClient();
+  const response = await ai.models.generateContent({
+    model: 'gemini-3-flash-preview',
+    contents: "Generate 5 thought-provoking questions to help someone define a '12 Week Year' compelling vision. Make them challenging and future-focused.",
+    config: {
+      responseMimeType: "application/json",
+      responseSchema: {
+        type: Type.ARRAY,
+        items: { type: Type.STRING }
+      }
+    }
+  });
+  const text = response.text;
+  return text ? JSON.parse(text.trim()) : [];
+};
+
+export const suggestTactics = async (goal: string): Promise<Partial<Tactic>[]> => {
+  const ai = getClient();
+  const response = await ai.models.generateContent({
+    model: "gemini-3-flash-preview",
+    contents: `Suggest 3-5 high-impact tactics for a 12-week goal: "${goal}". 
+    Tactics must be daily or weekly repeatable actions. Lead indicators only.`,
+    config: {
+      responseMimeType: "application/json",
+      // Using Type enum from @google/genai for structured output.
+      responseSchema: {
+        type: Type.ARRAY,
+        items: {
+          type: Type.OBJECT,
+          properties: {
+            description: { type: Type.STRING },
+            frequency: { type: Type.STRING },
+            target: { type: Type.NUMBER }
+          },
+          required: ["description", "frequency", "target"]
+        }
+      }
+    }
+  });
+  const text = response.text;
+  return text ? JSON.parse(text.trim()) : [];
+};
