@@ -1,6 +1,5 @@
 
 import React from 'react';
-import ReactMarkdown from 'react-markdown';
 import { Cycle } from '../types';
 import {
   XAxis,
@@ -28,9 +27,11 @@ const Dashboard: React.FC<{ cycle: Cycle; onNavigateToWeek: () => void }> = ({ c
         <div className="space-y-2">
           <div className="inline-flex items-center gap-2 bg-blue-50 text-blue-600 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest">Active Cycle</div>
           <h2 className="text-4xl font-black text-slate-900 tracking-tight">Focus on Execution.</h2>
-          <div className="text-slate-500 max-w-md italic prose prose-slate prose-sm max-w-none">
-            <ReactMarkdown>{cycle.vision ? `"${cycle.vision}"` : ''}</ReactMarkdown>
-          </div>
+          {cycle.vision && (
+            <p className="text-slate-500 max-w-md italic line-clamp-3">
+              "{cycle.vision}"
+            </p>
+          )}
         </div>
         <button onClick={onNavigateToWeek} className="bg-slate-900 text-white px-8 py-4 rounded-2xl font-black flex items-center gap-2 hover:scale-105 transition-all shadow-2xl shadow-slate-200">
           Open Weekly Scorecard <ArrowUpRight size={20} />

@@ -2,12 +2,12 @@
 import React, { useState, useEffect } from 'react';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { loadUserCycle, saveUserCycle } from './services/dbService';
-import { 
-  LayoutDashboard, 
-  Target, 
-  TrendingUp, 
-  Sparkles, 
-  Clock, 
+import {
+  LayoutDashboard,
+  Target,
+  TrendingUp,
+  Sparkles,
+  Clock,
   Wrench,
   LogOut,
   Menu,
@@ -76,19 +76,19 @@ const AppContent: React.FC = () => {
     return (
       <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-4">
         <div className="bg-white p-8 rounded-[2rem] shadow-xl max-w-md w-full text-center space-y-6">
-           <div className="w-16 h-16 bg-blue-600 rounded-2xl flex items-center justify-center text-white font-black text-2xl mx-auto mb-4">12</div>
-           <h1 className="text-3xl font-black text-slate-900">12 Week Catalyst</h1>
-           <p className="text-slate-500">Sign in to sync your progress across all devices and never lose your plan.</p>
-           <button onClick={signIn} className="w-full bg-slate-900 text-white font-bold py-4 rounded-xl hover:bg-slate-800 transition-all flex items-center justify-center gap-2">
-             Sign in with Google
-           </button>
+          <div className="w-16 h-16 bg-blue-600 rounded-2xl flex items-center justify-center text-white font-black text-2xl mx-auto mb-4">12</div>
+          <h1 className="text-3xl font-black text-slate-900">12 Week Catalyst</h1>
+          <p className="text-slate-500">Sign in to sync your progress across all devices and never lose your plan.</p>
+          <button onClick={signIn} className="w-full bg-slate-900 text-white font-bold py-4 rounded-xl hover:bg-slate-800 transition-all flex items-center justify-center gap-2">
+            Sign in with Google
+          </button>
         </div>
       </div>
     );
   }
 
   if (cycle && !cycle.onboardingCompleted) {
-    return <Onboarding cycle={cycle} onComplete={() => updateCycle(c => c ? {...c, onboardingCompleted: true} : null)} />;
+    return <Onboarding cycle={cycle} updateCycle={updateCycle} onComplete={() => { }} />;
   }
 
   const renderContent = () => {
@@ -137,7 +137,7 @@ const AppContent: React.FC = () => {
             Catalyst
           </h1>
         </div>
-        
+
         <div className="flex-1 space-y-1 md:px-3 overflow-y-auto">
           {navItems.map((item) => (
             <button
@@ -146,11 +146,10 @@ const AppContent: React.FC = () => {
                 setActiveTab(item.id as any);
                 setMobileMenuOpen(false);
               }}
-              className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-all ${
-                activeTab === item.id 
-                  ? 'bg-blue-50 text-blue-600 shadow-sm' 
+              className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-all ${activeTab === item.id
+                  ? 'bg-blue-50 text-blue-600 shadow-sm'
                   : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900'
-              }`}
+                }`}
             >
               <item.icon size={20} className={activeTab === item.id ? 'stroke-[2.5px]' : 'stroke-2'} />
               {item.label}
@@ -159,14 +158,14 @@ const AppContent: React.FC = () => {
         </div>
 
         <div className="p-4 border-t border-slate-100">
-            <div className="flex items-center gap-3 px-4 py-3 pb-0">
-               <img src={user.photoURL || ''} className="w-8 h-8 rounded-full bg-slate-200" alt="Profile" />
-               <div className="flex-1 overflow-hidden">
-                 <p className="text-xs font-bold text-slate-900 truncate">{user.displayName}</p>
-                 <p className="text-[10px] text-slate-500 truncate">{user.email}</p>
-               </div>
-               <button onClick={logout} className="text-slate-400 hover:text-red-500 transition-colors"><LogOut size={16}/></button>
+          <div className="flex items-center gap-3 px-4 py-3 pb-0">
+            <img src={user.photoURL || ''} className="w-8 h-8 rounded-full bg-slate-200" alt="Profile" />
+            <div className="flex-1 overflow-hidden">
+              <p className="text-xs font-bold text-slate-900 truncate">{user.displayName}</p>
+              <p className="text-[10px] text-slate-500 truncate">{user.email}</p>
             </div>
+            <button onClick={logout} className="text-slate-400 hover:text-red-500 transition-colors"><LogOut size={16} /></button>
+          </div>
         </div>
       </nav>
 
@@ -174,13 +173,13 @@ const AppContent: React.FC = () => {
       <main className="flex-1 h-[calc(100vh-64px)] md:h-screen overflow-y-auto scroll-smooth">
         {/* Overlay for mobile menu */}
         {mobileMenuOpen && (
-           <div 
-             className="fixed inset-0 bg-black/20 z-0 md:hidden glass"
-             onClick={() => setMobileMenuOpen(false)}
-           />
+          <div
+            className="fixed inset-0 bg-black/20 z-0 md:hidden glass"
+            onClick={() => setMobileMenuOpen(false)}
+          />
         )}
         <div className="p-4 md:p-8 max-w-7xl mx-auto pb-24 md:pb-8">
-           {renderContent()}
+          {renderContent()}
         </div>
       </main>
     </div>
