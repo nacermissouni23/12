@@ -1,8 +1,9 @@
 
 import React, { useState } from 'react';
+import ReactMarkdown from 'react-markdown';
 import { Cycle, Tactic } from '../types';
 import { CheckCircle2, ChevronLeft, ChevronRight, Info, AlertTriangle, Sparkles } from 'lucide-react';
-import { getCorrectiveAction } from '../services/geminiService';
+import { getCorrectiveAction } from '../services/openRouterService';
 
 interface Props {
   cycle: Cycle;
@@ -22,7 +23,7 @@ const WeeklyExecutionView: React.FC<Props> = ({ cycle, updateCycle }) => {
       const newExecutions = [...prev.executions];
       const completions = { ...newExecutions[selectedWeek].completions };
       completions[tacticId] = (current >= target) ? 0 : (current + 1);
-      
+
       // Calculate score
       let totalP = 0, totalD = 0;
       prev.goals.forEach(g => g.tactics.forEach(t => {
@@ -30,13 +31,13 @@ const WeeklyExecutionView: React.FC<Props> = ({ cycle, updateCycle }) => {
         const comp = t.id === tacticId ? completions[t.id] : (newExecutions[selectedWeek].completions[t.id] || 0);
         totalD += Math.min(t.target, comp);
       }));
-      
+
       newExecutions[selectedWeek] = {
         ...newExecutions[selectedWeek],
         completions,
         score: totalP > 0 ? Math.round((totalD / totalP) * 100) : 0
       };
-      
+
       return { ...prev, executions: newExecutions };
     });
   };
@@ -60,11 +61,10 @@ const WeeklyExecutionView: React.FC<Props> = ({ cycle, updateCycle }) => {
             <ChevronRight size={20} />
           </button>
         </div>
-        <div className={`px-6 py-2 rounded-full font-black text-xl border-2 ${
-          weekData.score >= 85 ? 'bg-green-50 text-green-700 border-green-200' : 
+        <div className={`px-6 py-2 rounded-full font-black text-xl border-2 ${weekData.score >= 85 ? 'bg-green-50 text-green-700 border-green-200' :
           weekData.score >= 70 ? 'bg-orange-50 text-orange-700 border-orange-200' :
-          'bg-red-50 text-red-700 border-red-200'
-        }`}>
+            'bg-red-50 text-red-700 border-red-200'
+          }`}>
           {weekData.score}%
         </div>
       </header>
@@ -78,7 +78,7 @@ const WeeklyExecutionView: React.FC<Props> = ({ cycle, updateCycle }) => {
               <p className="text-sm text-red-700">You are below the 85% success threshold. Don't let annualized thinking creep in.</p>
             </div>
           </div>
-          <button 
+          <button
             onClick={handleGetRecovery}
             disabled={loadingRecovery}
             className="bg-red-600 text-white px-6 py-3 rounded-2xl font-bold flex items-center gap-2 hover:bg-red-700 transition-all shadow-lg shadow-red-200 shrink-0"
@@ -92,7 +92,9 @@ const WeeklyExecutionView: React.FC<Props> = ({ cycle, updateCycle }) => {
       {recoveryPlan && (
         <div className="bg-slate-900 text-white p-8 rounded-3xl space-y-4 animate-in zoom-in-95 duration-300">
           <h4 className="text-blue-400 font-bold uppercase tracking-widest text-xs">AI Recovery Plan</h4>
-          <div className="whitespace-pre-wrap text-sm leading-relaxed opacity-90">{recoveryPlan}</div>
+          <div className="prose prose-invert prose-sm max-w-none leading-relaxed opacity-90">
+            <ReactMarkdown>{recoveryPlan}</ReactMarkdown>
+          </div>
           <button onClick={() => setRecoveryPlan(null)} className="text-xs text-slate-400 underline">Dismiss</button>
         </div>
       )}

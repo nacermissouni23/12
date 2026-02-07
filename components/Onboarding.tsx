@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Cycle } from '../types';
 import { Sparkles, ArrowRight, ShieldCheck, Target } from 'lucide-react';
-import { generateVisionPrompts } from '../services/geminiService';
+import { generateVisionPrompts } from '../services/openRouterService';
 
 interface Props {
   cycle: Cycle;

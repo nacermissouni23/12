@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { Cycle, Goal, Tactic } from '../types';
 import { Plus, Trash2, Sparkles, Target, BarChart3, Edit3, Eye } from 'lucide-react';
-import { suggestTactics } from '../services/geminiService';
+import { suggestTactics } from '../services/openRouterService';
 
 interface Props {
   cycle: Cycle;
@@ -52,7 +52,7 @@ const Planning: React.FC<Props> = ({ cycle, updateCycle }) => {
       });
     } catch (e: any) {
       console.error('Suggest tactics error:', e);
-      alert(e?.message?.includes('leaked') ? 'API key was revoked. Generate a new one at aistudio.google.com/apikey' : `AI error: ${e?.message || 'Check API key.'}`);
+      alert(e?.message || `AI error: Check your OpenRouter API key.`);
     }
     setLoadingTactics(null);
   };
@@ -66,20 +66,20 @@ const Planning: React.FC<Props> = ({ cycle, updateCycle }) => {
             Core Vision
           </div>
           <div className="flex bg-slate-100 rounded-lg p-1">
-             <button onClick={() => setVisionMode('edit')} className={`p-2 rounded-md transition-all ${visionMode === 'edit' ? 'bg-white shadow-sm text-slate-900' : 'text-slate-400'}`}><Edit3 size={16}/></button>
-             <button onClick={() => setVisionMode('preview')} className={`p-2 rounded-md transition-all ${visionMode === 'preview' ? 'bg-white shadow-sm text-slate-900' : 'text-slate-400'}`}><Eye size={16}/></button>
+            <button onClick={() => setVisionMode('edit')} className={`p-2 rounded-md transition-all ${visionMode === 'edit' ? 'bg-white shadow-sm text-slate-900' : 'text-slate-400'}`}><Edit3 size={16} /></button>
+            <button onClick={() => setVisionMode('preview')} className={`p-2 rounded-md transition-all ${visionMode === 'preview' ? 'bg-white shadow-sm text-slate-900' : 'text-slate-400'}`}><Eye size={16} /></button>
           </div>
         </h3>
         {visionMode === 'edit' ? (
           <textarea
             value={cycle.vision}
-            onChange={(e) => updateCycle(p => p ? {...p, vision: e.target.value} : null)}
+            onChange={(e) => updateCycle(p => p ? { ...p, vision: e.target.value } : null)}
             className="w-full h-40 p-8 bg-slate-50 border-2 border-slate-100 rounded-3xl focus:border-blue-500 focus:outline-none text-slate-700 text-lg italic transition-all"
             placeholder="Write your vision here..."
           />
         ) : (
           <div className="w-full min-h-40 p-8 bg-slate-50 border-2 border-slate-100 rounded-3xl prose prose-slate max-w-none text-slate-700">
-             <ReactMarkdown>{cycle.vision || 'No vision set.'}</ReactMarkdown>
+            <ReactMarkdown>{cycle.vision || 'No vision set.'}</ReactMarkdown>
           </div>
         )}
       </section>
@@ -106,7 +106,7 @@ const Planning: React.FC<Props> = ({ cycle, updateCycle }) => {
                     className="w-full text-2xl font-black bg-transparent border-none focus:outline-none placeholder:text-slate-200"
                   />
                 </div>
-                <button onClick={() => updateCycle(p => p ? {...p, goals: p.goals.filter(g => g.id !== goal.id)} : null)} className="p-2 text-slate-300 hover:text-red-500 transition-colors">
+                <button onClick={() => updateCycle(p => p ? { ...p, goals: p.goals.filter(g => g.id !== goal.id) } : null)} className="p-2 text-slate-300 hover:text-red-500 transition-colors">
                   <Trash2 size={24} />
                 </button>
               </div>
@@ -141,7 +141,7 @@ const Planning: React.FC<Props> = ({ cycle, updateCycle }) => {
             <div className="p-8 space-y-6">
               <div className="flex items-center justify-between">
                 <h4 className="text-xs font-black text-slate-900 uppercase tracking-widest">Weekly Tactics (Lead Indicators)</h4>
-                <button 
+                <button
                   onClick={() => handleSuggestTactics(goal.id, goal.title)}
                   disabled={loadingTactics === goal.id}
                   className="text-blue-600 text-xs font-black flex items-center gap-1 hover:underline disabled:opacity-50"
@@ -156,13 +156,13 @@ const Planning: React.FC<Props> = ({ cycle, updateCycle }) => {
                     <input
                       type="text"
                       value={tactic.description}
-                      onChange={(e) => updateGoal(goal.id, { tactics: goal.tactics.map(t => t.id === tactic.id ? {...t, description: e.target.value} : t) })}
+                      onChange={(e) => updateGoal(goal.id, { tactics: goal.tactics.map(t => t.id === tactic.id ? { ...t, description: e.target.value } : t) })}
                       className="flex-1 bg-transparent border-none focus:outline-none font-bold text-slate-700 text-sm"
                     />
                     <div className="flex items-center gap-2">
-                      <select 
+                      <select
                         value={tactic.frequency}
-                        onChange={(e) => updateGoal(goal.id, { tactics: goal.tactics.map(t => t.id === tactic.id ? {...t, frequency: e.target.value as any} : t) })}
+                        onChange={(e) => updateGoal(goal.id, { tactics: goal.tactics.map(t => t.id === tactic.id ? { ...t, frequency: e.target.value as any } : t) })}
                         className="bg-white text-xs font-bold border border-slate-200 rounded-lg px-2 py-1"
                       >
                         <option value="daily">Daily</option>
@@ -171,13 +171,13 @@ const Planning: React.FC<Props> = ({ cycle, updateCycle }) => {
                       <input
                         type="number"
                         value={tactic.target}
-                        onChange={(e) => updateGoal(goal.id, { tactics: goal.tactics.map(t => t.id === tactic.id ? {...t, target: parseInt(e.target.value)} : t) })}
+                        onChange={(e) => updateGoal(goal.id, { tactics: goal.tactics.map(t => t.id === tactic.id ? { ...t, target: parseInt(e.target.value) } : t) })}
                         className="w-12 text-center text-xs font-bold bg-white border border-slate-200 rounded-lg py-1"
                       />
                     </div>
                   </div>
                 ))}
-                <button 
+                <button
                   onClick={() => updateGoal(goal.id, { tactics: [...goal.tactics, { id: crypto.randomUUID(), description: '', frequency: 'weekly', target: 1 }] })}
                   className="w-full py-4 border-2 border-dashed border-slate-100 rounded-2xl text-slate-300 font-bold text-sm hover:border-blue-200 hover:text-blue-500 transition-all"
                 >

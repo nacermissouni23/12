@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { Cycle } from '../types';
-import { getAIFeedback } from '../services/geminiService';
+import { getAIFeedback } from '../services/openRouterService';
 import { Sparkles, Send, BrainCircuit } from 'lucide-react';
 
 interface Props {
@@ -20,8 +20,7 @@ const AICoach: React.FC<Props> = ({ cycle, updateCycle }) => {
       updateCycle(prev => prev ? { ...prev, aiFeedback: result || 'No feedback received.' } : null);
     } catch (e: any) {
       console.error('AI Coach error:', e);
-      const msg = e?.message?.includes('leaked') ? 'API key was revoked by Google. Generate a new key at aistudio.google.com/apikey'
-        : e?.message || 'Failed to connect to AI Coach. Please check your API key.';
+      const msg = e?.message || 'Failed to connect to AI Coach. Please check your OpenRouter API key.';
       updateCycle(prev => prev ? { ...prev, aiFeedback: msg } : null);
     } finally {
       setLoading(false);
@@ -42,7 +41,7 @@ const AICoach: React.FC<Props> = ({ cycle, updateCycle }) => {
         </div>
         <h2 className="text-3xl font-bold text-slate-900 tracking-tight">AI Strategy Coach</h2>
         <p className="text-slate-500 max-w-xl mx-auto">
-          Gemini analyzes your 12-week plan for weaknesses and suggests optimizations for better execution.
+          AI analyzes your 12-week plan for weaknesses and suggests optimizations for better execution.
         </p>
       </header>
 
@@ -58,7 +57,7 @@ const AICoach: React.FC<Props> = ({ cycle, updateCycle }) => {
                 <p className="text-slate-400 text-xs">Ready to optimize your performance</p>
               </div>
             </div>
-            <button 
+            <button
               onClick={requestFeedback}
               disabled={loading}
               className="bg-white hover:bg-slate-50 text-slate-900 px-4 py-2 rounded-xl text-sm font-bold transition-all disabled:opacity-50"

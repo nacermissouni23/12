@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { Cycle } from '../types';
 import { Calendar, Download, Wand2, CheckCircle, FileText, Sparkles, Loader2 } from 'lucide-react';
-import { refineVision } from '../services/geminiService';
+import { refineVision } from '../services/openRouterService';
 
 interface Props {
   cycle: Cycle;
@@ -24,7 +24,7 @@ const MicroTools: React.FC<Props> = ({ cycle, updateCycle }) => {
       alert("Vision refined and updated in your plan!");
     } catch (e: any) {
       console.error('Refine vision error:', e);
-      alert(e?.message?.includes('leaked') ? 'API key was revoked. Generate a new one at aistudio.google.com/apikey' : `AI error: ${e?.message || 'Check API key.'}`);
+      alert(e?.message || `AI error: Check your OpenRouter API key.`);
     } finally {
       setLoading(null);
     }
@@ -77,12 +77,12 @@ END:VCALENDAR`;
           <Wand2 className="text-purple-600 mb-6 group-hover:scale-110 transition-transform" size={32} />
           <h3 className="text-xl font-bold text-slate-900 mb-2">Vision Enhancer</h3>
           <p className="text-slate-500 text-sm mb-6">AI will take your messy thoughts and turn them into a clear, compelling 1-page vision statement.</p>
-          <button 
+          <button
             onClick={handleRefineVision}
             disabled={loading === 'vision'}
             className="w-full bg-slate-50 text-slate-900 py-3 rounded-2xl font-bold hover:bg-purple-600 hover:text-white transition-all flex items-center justify-center gap-2 disabled:opacity-50"
           >
-            {loading === 'vision' ? <Loader2 className="animate-spin" size={18} /> : <Sparkles size={18} />} 
+            {loading === 'vision' ? <Loader2 className="animate-spin" size={18} /> : <Sparkles size={18} />}
             Refine Vision
           </button>
         </div>
@@ -91,7 +91,7 @@ END:VCALENDAR`;
           <FileText className="text-green-600 mb-6 group-hover:scale-110 transition-transform" size={32} />
           <h3 className="text-xl font-bold text-slate-900 mb-2">Print Weekly Planner</h3>
           <p className="text-slate-500 text-sm mb-6">Open the print dialog to generate a clean, printable scorecard for the fridge.</p>
-          <button 
+          <button
             onClick={handlePrintPlanner}
             className="w-full bg-slate-50 text-slate-900 py-3 rounded-2xl font-bold hover:bg-green-600 hover:text-white transition-all flex items-center justify-center gap-2"
           >
